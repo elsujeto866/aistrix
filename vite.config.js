@@ -13,6 +13,8 @@ export default defineConfig({
       input: path.resolve(__dirname, 'assets/js/main.jsx'),
       output: {
         entryFileNames: 'main.js',
+        chunkFileNames: 'aistrix-[name].js',
+        assetFileNames: 'aistrix-[name].[ext]'
       },
     },
   },
@@ -29,7 +31,3 @@ export default defineConfig({
         },
 },
 });
-
-
-
-  

@@ -2,6 +2,39 @@ import React, { useState } from 'react';
 
 export default function App() {
   const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+
+  async function enviarVPL(courseid = null) {
+    setLoading(true);
+    setResult(null);
+    setError(null);
+    try {
+      const params = {
+        methodname: 'local_aistrix_process_vpl',
+        args: { courseid }
+      };
+      const response = await fetch(M.cfg.wwwroot + '/lib/ajax/service.php?sesskey=' + M.cfg.sesskey, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify([params])
+      });
+      const data = await response.json();
+      if (data[0].error) {
+        setError(data[0].exception.message);
+      } else {
+        setResult(data[0].data.message);
+      }
+    } catch (e) {
+      setError('Error de red o inesperado');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div style={{ position: 'relative' }}>
@@ -41,6 +74,11 @@ export default function App() {
         >
           <h2>Aistrix</h2>
           <p>Asistente React en Moodle</p>
+          <button onClick={() => enviarVPL()} disabled={loading} style={{marginBottom: '1rem'}}>
+            {loading ? 'Enviando...' : 'Enviar datos VPL'}
+          </button>
+          {result && <div style={{color: 'green', marginBottom: '1rem'}}>{result}</div>}
+          {error && <div style={{color: 'red', marginBottom: '1rem'}}>{error}</div>}
         </div>
       )}
     </div>
