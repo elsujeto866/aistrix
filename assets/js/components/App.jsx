@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
+import aistrix from '/img/aistrix.jpg';
+import TabButton from './TabButton';
 
 export default function App() {
+  // Ruta base del plugin
+  const pluginBase = M.cfg.wwwroot + '/local/aistrix/amd/build/';
+
+  // Estado para controlar la visibilidad del botón
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -36,27 +42,11 @@ export default function App() {
     }
   }
 
+  
+
   return (
     <div style={{ position: 'relative' }}>
-      <button
-        onClick={() => setVisible(!visible)}
-        style={{
-          position: 'fixed',
-          right: '20px',
-          bottom: '20px',
-          zIndex: 10000,
-          backgroundColor: '#0055aa',
-          color: '#fff',
-          borderRadius: '50%',
-          width: '50px',
-          height: '50px',
-          border: 'none',
-          fontSize: '24px',
-        }}
-      >
-        🦉
-      </button>
-
+      <TabButton visible={visible} setVisible={setVisible} pluginBase={pluginBase} />
       {visible && (
         <div
           style={{
