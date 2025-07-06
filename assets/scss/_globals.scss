@@ -1,0 +1,15 @@
+// Variables y mixins compartidos
+$brand: #6236ff;
+$radius: 0.5rem;
+
+@mixin card {
+  border-radius: $radius;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+}// Variables y mixins compartidos
+$brand: #6236ff;
+$radius: 0.5rem;
+
+@mixin card {
+  border-radius: $radius;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+}

@@ -1,11 +1,7 @@
 import React, { useState } from 'react';
-import aistrix from '/img/aistrix.jpg';
 import TabButton from './TabButton';
 
 export default function App() {
-  // Ruta base del plugin
-  const pluginBase = M.cfg.wwwroot + '/local/aistrix/amd/build/';
-
   // Estado para controlar la visibilidad del botón
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -46,7 +42,7 @@ export default function App() {
 
   return (
     <div style={{ position: 'relative' }}>
-      <TabButton visible={visible} setVisible={setVisible} pluginBase={pluginBase} />
+      <TabButton visible={visible} setVisible={setVisible} />
       {visible && (
         <div
           style={{

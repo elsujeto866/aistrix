@@ -9,25 +9,30 @@ export default defineConfig({
     outDir: '../amd/build',
     emptyOutDir: true,
     strict: true,
-    rollupOptions: {
-      input: path.resolve(__dirname, 'assets/js/main.jsx'),
-      output: {
-        entryFileNames: 'main.js',
-        chunkFileNames: 'aistrix-[name].js',
-        assetFileNames: 'aistrix-[name].[ext]'
-      },
+
+    lib: {
+      entry: path.resolve(__dirname, 'assets/js/main.jsx'),
+      name:  'local_aistrix_main',
+      formats: ['amd'],
+      fileName: () => 'main'
     },
-  },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        
+
+    rollupOptions: {
+      output: {
+        amd: { id: 'local_aistrix/main' },
+        entryFileNames: 'main.js',
+        exports: 'named',
+        //assetFileNames: 'aistrix-[name].[ext]'
       },
     },
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'assets/js'),
+      '@': path.resolve(__dirname, 'assets'),
         },
-},
+  },
+  define: {
+    'process.env.NODE_ENV': '"production"', 
+    'process.env': '{}',                  
+  },
 });

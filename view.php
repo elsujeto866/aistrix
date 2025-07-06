@@ -2,11 +2,21 @@
 require('../../config.php');
 require_login();
 
+$context = context_system::instance();
+$PAGE->set_context($context);
 $PAGE->set_url(new moodle_url('/local/aistrix/view.php'));
-$PAGE->set_context(context_system::instance());
-$PAGE->set_title('Aistrix React');
-$PAGE->set_heading('Panel con React + Vite');
+$PAGE->set_title(get_string('pluginname', 'local_aistrix'));
+$PAGE->set_heading(get_string('pluginname', 'local_aistrix'));
+$PAGE->set_pagelayout('standard');
 
-echo $OUTPUT->header();
-echo $OUTPUT->render(new \local_aistrix\output\panel());
+// Cargar CSS y módulo AMD
+//$PAGE->requires->css('/local/aistrix/amd/build/local_aistrix.css');
+$PAGE->requires->js_call_amd('local_aistrix/main', 'init');
+
+//Crear el objeto renderable
+$panel = new \local_aistrix\output\panel();
+
+// Renderizar contenido  
+echo $OUTPUT->header();  
+echo $OUTPUT->render($panel);  
 echo $OUTPUT->footer();

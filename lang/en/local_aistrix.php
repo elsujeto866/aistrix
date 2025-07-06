@@ -1,3 +1,3 @@
 <?php
 
-$string['pluginname'] = 'Aistrix Assistant';
+$string['pluginname'] = 'Aistrix';
