@@ -1,14 +1,101 @@
-// Importa las globals y expón todo en el scope local
-@use 'globals' as *;
+/*  _tabbutton.scss  */
+@use "globals" as *;
+@use "mixins"  as *;
 
-.tab-button {
-  position: fixed;
-  right: 0;
-  bottom: 20px;
-  z-index: 10000;
-  background-color: #ffffff;
-  color: '#fff';
-  border-radius: '25px 0 0 25px';
-  width: '60px';
-  height: '60px';
+/* TabButton principal (pestaña lateral) */
+.aistrix-tabbutton {
+  @include tab-button-base;
+  @include tab-button-container;
+  
+  // Transición específica para el movimiento
+  transition: right $transition-duration $transition-timing;
+  
+  // Estado cuando el panel está abierto
+  &.open {
+    @include tab-button-active;
+  }
+  
+  // Imagen del botón
+  img {
+    @include tab-button-image;
+    transition: transform $transition-duration $transition-timing;
+  }
+  
+  // Efectos de hover
+  &:hover {
+    img {
+      transform: scale(1.05);
+    }
+  }
+  
+  // Animación de entrada
+  animation: slideInRight 0.5s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 60px;
+  transition: width $transition-duration $transition-timing;
+
+  &.hovered {
+    width: 140px; // o el ancho que prefieras
+    background: $clr-white;
+    box-shadow: 0 2px 12px $clr-shadow;
+  }
+
+  .aistrix-tabbutton__shortcut {
+    margin-left: 12px;
+    color: $clr-primary;
+    font-size: 0.95rem;
+    font-weight: 500;
+    opacity: 1;
+    transition: opacity $transition-duration $transition-timing;
+    white-space: nowrap;
+  }
+}
+
+/* Botón individual (pestaña) - para futuras funcionalidades */
+.aistrix-tabbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: rem(4);
+  padding: rem(8) rem(12);
+  font: 500 rem(14) calc(1 / 1.2) $font-base;
+  color: $clr-primary;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: rem(6);
+  cursor: pointer;
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+
+  &:hover,
+  &:focus-visible {
+    background: rgba($clr-primary, .08);
+    border-color: $clr-primary;
+    outline: none;
+  }
+
+  &--active {
+    background: $clr-primary;
+    color: #fff;
+  }
+}
+
+/* Espaciado extra a partir de ≥ 768 px */
+@include respond(md) {
+  .aistrix-tabbtn {
+    font-size: rem(15);
+    padding: rem(10) rem(16);
+  }
+}
+
+// Animación de entrada desde la derecha
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%) translateY(-50%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) translateY(-50%);
+    opacity: 1;
+  }
 }

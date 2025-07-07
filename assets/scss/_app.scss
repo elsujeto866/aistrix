@@ -1,0 +1,10 @@
+@use 'globals' as *;
+
+.aistrix-app {
+  background-color: $clr-white;
+  
+  // Estilos adicionales para el componente App
+  position: relative;
+  width: 100%;
+  height: 100%;
+} 

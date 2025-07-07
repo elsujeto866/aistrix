@@ -7,9 +7,13 @@ use renderer_base;
   
 class panel implements renderable, templatable {  
       
-    public function export_for_template(renderer_base $output) {  
-        return [  
-            'pluginurl' => new \moodle_url('/local/aistrix/')  
-        ];  
+        public function export_for_template(renderer_base $output) {
+        global $USER;
+        
+        return [
+            'pluginurl' => new \moodle_url('/local/aistrix/'),
+            'username' => $USER->firstname ?? 'Usuario',
+            'fullname' => fullname($USER)
+        ];
     }  
 }

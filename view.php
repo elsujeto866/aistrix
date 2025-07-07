@@ -10,7 +10,7 @@ $PAGE->set_heading(get_string('pluginname', 'local_aistrix'));
 $PAGE->set_pagelayout('standard');
 
 // Cargar CSS y módulo AMD
-//$PAGE->requires->css('/local/aistrix/amd/build/local_aistrix.css');
+$PAGE->requires->css('/local/aistrix/amd/build/local_aistrix.css');
 $PAGE->requires->js_call_amd('local_aistrix/main', 'init');
 
 //Crear el objeto renderable

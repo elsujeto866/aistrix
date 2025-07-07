@@ -12,7 +12,7 @@ export default defineConfig({
 
     lib: {
       entry: path.resolve(__dirname, 'assets/js/main.jsx'),
-      name:  'local_aistrix_main',
+      name:  'aistrix',
       formats: ['amd'],
       fileName: () => 'main'
     },
@@ -20,9 +20,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         amd: { id: 'local_aistrix/main' },
-        entryFileNames: 'main.js',
+        entryFileNames: '[name].js',
         exports: 'named',
-        //assetFileNames: 'aistrix-[name].[ext]'
+        assetFileNames: '[name].[ext]'
       },
     },
   },

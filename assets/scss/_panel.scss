@@ -1,0 +1,143 @@
+@use 'globals' as *;
+@use 'mixins' as *;
+@use 'sass:color';
+
+// Panel principal
+.aistrix-panel {
+  position: fixed;
+  top: 0;
+  right: -300px; // Inicialmente oculto
+  width: 300px;
+  height: 100vh;
+  background: $clr-white;
+  border-left: 1px solid $clr-border;
+  box-shadow: -2px 0 8px $clr-shadow;
+  z-index: 9999;
+  transition: right $transition-duration $transition-timing;
+  overflow-y: auto;
+  
+  // Panel abierto
+  &.open {
+    right: 0;
+  }
+  
+  // Header del panel
+  &__header {
+    padding: 1rem;
+    border-bottom: 1px solid $clr-border;
+    background: $clr-bg-body;
+    
+    h2 {
+      margin: 0;
+      font-family: $font-base;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: $clr-primary;
+    }
+    
+    p {
+      margin: 0.5rem 0 0 0;
+      font-size: 0.875rem;
+      color: #666;
+    }
+    
+    .user-info {
+      font-size: 0.75rem;
+      color: #888;
+      font-style: italic;
+      margin-top: 0.25rem;
+    }
+  }
+  
+  // Contenido del panel
+  &__content {
+    padding: 1rem;
+  }
+  
+  // Botón de cerrar
+  &__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    padding: 0.25rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(0, 0, 0, 0.1);
+      color: #333;
+    }
+  }
+  
+  // Botón de acción
+  &__action-btn {
+    @include button-base;
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(90deg, $clr-gradient-start 0%, $clr-gradient-end 100%);
+    color: white;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    
+    &:hover:not(:disabled) {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+  
+  // Mensajes de resultado
+  &__message {
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    
+    &--success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    &--error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+  }
+}
+
+// Animación de entrada del panel
+@keyframes slideInPanel {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+// Animación de salida del panel
+@keyframes slideOutPanel {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+} 

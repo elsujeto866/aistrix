@@ -1,12 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TabButton from './TabButton';
+import Panel from './Panel';
 
 export default function App() {
-  // Estado para controlar la visibilidad del botón
+  // Obtener datos del usuario desde el DOM
+  const container = document.getElementById('aistrix-root');
+  const username = container?.dataset?.username || 'Usuario';
+  const fullname = container?.dataset?.fullname || 'Usuario';
+  
+  // Estado para controlar la visibilidad del panel
   const [visible, setVisible] = useState(false);
+  const [tabOpen, setTabOpen] = useState(false); 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+
+  // Sincroniza el estado del tab con el panel
+  useEffect(() => {
+    if (visible) {
+      setTabOpen(true);
+    } else {
+      // Espera la duración de la transición del panel (ej: 300ms)
+      const timeout = setTimeout(() => setTabOpen(false), 100);
+      return () => clearTimeout(timeout);
+    }
+  }, [visible]);
+
+  // Atajo de teclado Ctrl+A o Cmd+A para abrir/cerrar el panel
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        setVisible(v => !v);
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   async function enviarVPL(courseid = null) {
     setLoading(true);
@@ -38,35 +68,25 @@ export default function App() {
     }
   }
 
-  
+  function handleClose() {
+    setVisible(false);
+    setResult(null);
+    setError(null);
+  }
 
   return (
-    <div style={{ position: 'relative' }}>
-      <TabButton visible={visible} setVisible={setVisible} />
-      {visible && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            right: 0,
-            width: '300px',
-            height: '100vh',
-            background: '#fff',
-            borderLeft: '1px solid #ccc',
-            boxShadow: '-2px 0 8px rgba(0,0,0,0.1)',
-            padding: '1rem',
-            zIndex: 9999,
-          }}
-        >
-          <h2>Aistrix</h2>
-          <p>Asistente React en Moodle</p>
-          <button onClick={() => enviarVPL()} disabled={loading} style={{marginBottom: '1rem'}}>
-            {loading ? 'Enviando...' : 'Enviar datos VPL'}
-          </button>
-          {result && <div style={{color: 'green', marginBottom: '1rem'}}>{result}</div>}
-          {error && <div style={{color: 'red', marginBottom: '1rem'}}>{error}</div>}
-        </div>
-      )}
+    <div className="aistrix-app">
+      <TabButton visible={tabOpen} setVisible={setVisible} />
+      <Panel 
+        visible={visible}
+        onClose={handleClose}
+        loading={loading}
+        result={result}
+        error={error}
+        onSendVPL={() => enviarVPL()}
+        username={username}
+        fullname={fullname}
+      />
     </div>
   );
 }

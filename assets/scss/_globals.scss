@@ -1,15 +1,42 @@
-// Variables y mixins compartidos
-$brand: #6236ff;
-$radius: 0.5rem;
+// Variables globales
+$clr-primary: #0c0c0c;
+$clr-border: #d0d7de;
+$clr-bg-body: #f6f8fa;
+$clr-white: #ffffff;
+$clr-shadow: rgba(0, 0, 0, 0.1);
+$font-base: 'Inter', system-ui;
+$z-modal: 1050;
+$z-tabbutton: 10000;
+$clr-gradient-start: #6a8dff;
+$clr-gradient-end: #8f5fff;
 
-@mixin card {
-  border-radius: $radius;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
-}// Variables y mixins compartidos
-$brand: #6236ff;
-$radius: 0.5rem;
+// Variables de transición
+$transition-duration: 0.3s;
+$transition-timing: ease-in-out;
 
-@mixin card {
-  border-radius: $radius;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+// Mixins para posicionamiento
+@mixin fixed-right {
+  position: fixed;
+  right: 0;
+  z-index: $z-tabbutton;
+}
+
+@mixin center-vertical {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+@mixin tab-button-base {
+  @include fixed-right;
+  @include center-vertical;
+  background: $clr-white;
+  border: none;
+  border-radius: 25px 0 0 25px;
+  box-shadow: -2px 0 8px $clr-shadow;
+  cursor: pointer;
+  transition: all $transition-duration $transition-timing;
+  
+  &:hover {
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
+  }
 }

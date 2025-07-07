@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './components/App';
+import '@/scss/style.scss';
 
 // Módulo AMD que exporta la función init
 export function init() {

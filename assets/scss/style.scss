@@ -1,9 +1,7 @@
 // Importa parciales
 @use 'globals' as *;
+@use 'mixins' as *;
 @use 'tabbutton';
+@use 'app';
+@use 'panel';
 
-// Estilos base
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-}

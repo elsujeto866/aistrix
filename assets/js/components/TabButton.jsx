@@ -1,24 +1,22 @@
-import React from 'react';
-import aistrix from '/img/aistrix.jpg';
+import React, {useState} from 'react';
+import aistrix from '@/img/aistrix.jpg';
 
 export default function TabButton({visible, setVisible}) {
+  const [hovered, setHovered] = useState(false);
   return (
-    <div>
-      <button className="aistrix-tabbutton" onClick={() => setVisible(!visible)}>
-        <img
-          src={aistrix}
-          alt="Búho"
-          style={{
-            width: '60px',
-            height: '60px',
-            objectFit: 'cover',
-            borderRadius: '50%',
-            display: 'block',
-            background: '#fff',
-            marginLeft: '8px'
-          }}
-        />
-      </button>
-    </div>
+    <button 
+    className={`aistrix-tabbutton${visible ? ' open' : ''}${hovered ? ' hovered' : ''}`}
+      onClick={() => setVisible(!visible)}
+      aria-label="Abrir panel de Aistrix"
+      title="Aistrix - Asistente IA"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <img
+        src={aistrix}
+        alt="Aistrix"
+      />
+      {hovered && <span className="aistrix-tabbutton__shortcut">Ctrl + A</span>}
+    </button>
   );
 }
