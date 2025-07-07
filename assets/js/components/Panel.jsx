@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import ActionCard from './ActionCard';
 
 export default function Panel({ visible, onClose, loading, result, error, onSendVPL, username, fullname }) {
   return (
@@ -19,13 +20,13 @@ export default function Panel({ visible, onClose, loading, result, error, onSend
       
       {/* Contenido del panel */}
       <div className="aistrix-panel__content">
-        <button 
-          className="aistrix-panel__action-btn"
-          onClick={onSendVPL} 
-          disabled={loading}
-        >
-          {loading ? 'Enviando...' : 'Enviar datos VPL'}
-        </button>
+        
+        <ActionCard
+          icon={<span role="img" aria-label="libro">📖</span>}
+          title="Explicar error"
+          description="Recibe una explicación detallada del error que aparece en tu código."
+          onClick={onSendVPL}
+        />
         
         {result && (
           <div className="aistrix-panel__message aistrix-panel__message--success">
@@ -38,6 +39,8 @@ export default function Panel({ visible, onClose, loading, result, error, onSend
             {error}
           </div>
         )}
+
+        
       </div>
     </div>
   );

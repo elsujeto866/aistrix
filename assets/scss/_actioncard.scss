@@ -1,0 +1,44 @@
+.aistrix-action-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    width: 100%;
+    background: #f6f8fa;
+    border: 1px solid #e0e4ea;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: box-shadow 0.2s, border-color 0.2s;
+    text-align: left;
+  
+    &:hover, &:focus {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border-color: #b3b8c5;
+      background: #fff;
+    }
+  
+    &__icon {
+      font-size: 2rem;
+      color: #6a8dff;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+  
+    &__content {
+      flex: 1;
+    }
+  
+    &__title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 0.2rem;
+      color: #222;
+    }
+  
+    &__desc {
+      font-size: 0.95rem;
+      color: #555;
+      opacity: 0.85;
+    }
+  }
