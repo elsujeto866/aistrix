@@ -16,7 +16,7 @@ export default function TabButton({visible, setVisible}) {
         src={aistrix}
         alt="Aistrix"
       />
-      {hovered && <span className="aistrix-tabbutton__shortcut">Ctrl + A</span>}
+      {hovered && <span className="aistrix-tabbutton__shortcut">Ctrl + a</span>}
     </button>
   );
 }

@@ -9,6 +9,7 @@ $z-modal: 1050;
 $z-tabbutton: 10000;
 $clr-gradient-start: #6a8dff;
 $clr-gradient-end: #8f5fff;
+$clr-gradient-hover: linear-gradient(90deg, $clr-gradient-start 0%, $clr-gradient-end 100%);
 
 // Variables de transición
 $transition-duration: 0.3s;

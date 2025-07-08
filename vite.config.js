@@ -26,6 +26,19 @@ export default defineConfig({
       },
     },
   },
+  server: {
+    port: 5173, // o el puerto que prefieras
+    strictPort: true,
+    open: false,
+    // Proxy para que las peticiones AJAX sigan funcionando en Moodle
+    proxy: {
+      // Cambia esto según tu URL de Moodle
+      '/lib': 'http://localhost:8080',
+      '/local': 'http://localhost:8080',
+      '/theme': 'http://localhost:8080',
+      '/pluginfile.php': 'http://localhost:8080',
+    }
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'assets'),

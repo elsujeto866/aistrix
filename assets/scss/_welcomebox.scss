@@ -1,0 +1,36 @@
+@use 'globals' as *;
+
+.welcomebox {
+  background: $clr-white;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  margin-top: 1.5rem;
+  padding: 1.25rem 1rem 1rem 1rem;
+  border: 1px solid $clr-border;
+}
+
+.welcomebox__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.welcomebox__header img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.welcomebox__header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.welcomebox__body {
+  font-size: 0.98rem;
+  color: #222;
+  line-height: 1.6;
+}

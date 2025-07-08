@@ -9,6 +9,17 @@ $PAGE->set_title(get_string('pluginname', 'local_aistrix'));
 $PAGE->set_heading(get_string('pluginname', 'local_aistrix'));
 $PAGE->set_pagelayout('standard');
 
+
+global $USER;
+$dev = getenv('VITE_DEV') === '1';
+
+$templatecontext = [
+    'username' => $USER->firstname ?? 'Usuario',
+    'fullname' => fullname($USER),
+    'dev' => $dev
+];
+
+
 // Cargar CSS y módulo AMD
 $PAGE->requires->css('/local/aistrix/amd/build/local_aistrix.css');
 $PAGE->requires->js_call_amd('local_aistrix/main', 'init');
@@ -18,5 +29,5 @@ $panel = new \local_aistrix\output\panel();
 
 // Renderizar contenido  
 echo $OUTPUT->header();  
-echo $OUTPUT->render($panel);  
+echo $OUTPUT->render($panel, $templatecontext);  
 echo $OUTPUT->footer();

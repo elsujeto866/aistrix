@@ -1,1 +1,8 @@
 <div id="aistrix-root" data-username="{{username}}" data-fullname="{{fullname}}"></div>
+
+{{#dev}}
+  <script type="module" src="http://localhost:5173/js/main.jsx"></script>
+{{/dev}}
+{{^dev}}
+  <script type="module" src="{{pluginurl}}/amd/build/main.js"></script>
+{{/dev}}
