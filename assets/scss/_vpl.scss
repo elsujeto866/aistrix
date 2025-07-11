@@ -1,0 +1,114 @@
+// Estilos para el selector de VPL y elementos relacionados
+.vpl-selector {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+
+  h3 {
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .vpl-select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    
+    &:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    }
+  }
+
+  .vpl-info {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: var(--bg-primary);
+    border-radius: 6px;
+    border: 1px solid var(--border-light);
+
+    p {
+      margin: 0.25rem 0;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+
+      strong {
+        color: var(--text-primary);
+      }
+    }
+  }
+
+  &.loading {
+    text-align: center;
+    
+    p {
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+  }
+
+  &.no-vpls {
+    text-align: center;
+    
+    p {
+      color: var(--text-secondary);
+      margin: 0.5rem 0;
+      
+      &:first-of-type {
+        font-weight: 500;
+        color: var(--text-primary);
+      }
+    }
+  }
+}
+
+// Estilos para mensajes de estado
+.status-message {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border-left: 4px solid;
+
+  p {
+    margin: 0;
+    font-weight: 500;
+  }
+
+  &.loading {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: #3b82f6;
+    color: #1e40af;
+  }
+
+  &.success {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: #22c55e;
+    color: #15803d;
+  }
+
+  &.error {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
+    color: #dc2626;
+  }
+}
+
+// Estilos para ActionCard deshabilitada
+.aistrix-action-card.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  
+  &:hover {
+    background: var(--bg-secondary);
+    transform: none;
+  }
+}

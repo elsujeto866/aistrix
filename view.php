@@ -13,11 +13,11 @@ $PAGE->set_pagelayout('standard');
 global $USER;
 $dev = getenv('VITE_DEV') === '1';
 
-$templatecontext = [
+/*$templatecontext = [
     'username' => $USER->firstname ?? 'Usuario',
     'fullname' => fullname($USER),
     'dev' => $dev
-];
+];*/
 
 
 // Cargar CSS y módulo AMD
@@ -29,5 +29,5 @@ $panel = new \local_aistrix\output\panel();
 
 // Renderizar contenido  
 echo $OUTPUT->header();  
-echo $OUTPUT->render($panel, $templatecontext);  
+echo $OUTPUT->render($panel);  
 echo $OUTPUT->footer();
