@@ -136,9 +136,9 @@ export default function Panel({
 
                 {/* ActionCards */}
                 <ActionCard
-                    icon={<span role="img" aria-label="libro">🧪</span>}
-                    title="Explicar casos de prueba"
-                    description="Recibe una explicación detallada de los casos de prueba que fallan"
+                    icon={<span role="img" aria-label="codigo">👨‍💻</span>}
+                    title="Analizar código"
+                    description="Analizo tu código para detectar errores de sintaxis, lógica y pruebas fallidas. Recibe explicaciones claras y sugerencias para avanzar."
                     onClick={() => handleActionCardClick("enviar_vpl_estudiante")}
                 />
 

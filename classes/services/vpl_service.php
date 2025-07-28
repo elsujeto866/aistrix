@@ -135,6 +135,7 @@ class vpl_service {
                 v.name            AS vplname,
                 v.course          AS courseid,
                 c.fullname        AS coursename,
+                v.grade           AS maxgrade,
 
                 s.id              AS submissionid,
                 s.userid,
