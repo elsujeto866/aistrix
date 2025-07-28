@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ActionCard from './ActionCard';
 import ExplanationBox from './ExplanationBox';
 import WelcomeBox from './WelcomeBox';
@@ -40,7 +40,9 @@ export default function Panel({
             setShowExplanation(true);
         } else if (type === "enviar_vpl_estudiante") {
             if (selectedVpl) {
+                // Solo llamar al servicio, NO mostrar explanation aquí
                 onSendStudentVPL(selectedVpl.id);
+                // El ExplanationBox se mostrará cuando llegue el resultado con feedback
             }
         } else if (type === "enviar_vpl_admin") {
             onSendVPL();
@@ -62,6 +64,18 @@ export default function Panel({
         });
     }
 
+    // useEffect para detectar cuando llega feedback de la IA
+    useEffect(() => {
+        if (result && typeof result === 'object' && result.type === 'feedback' && result.feedback) {
+            setExplanation({
+                errorTitle: "Aistrix",
+                description: result.feedback,
+                footer: "Aistrix te acompaña en tu aprendizaje."
+            });
+            setShowExplanation(true);
+        }
+    }, [result]);
+
     return (
         <div className={`aistrix-panel ${visible ? 'open' : ''}`}>
             {/* Header del panel */}
@@ -81,7 +95,7 @@ export default function Panel({
             {/* Contenido del panel */}
             <div className="aistrix-panel__content">
                 
-                {/* Selector de VPL del estudiante */}
+                {/* Selector de VPL del estudiante 
                 {loadingVpls ? (
                     <div className="vpl-selector loading">
                         <p>Cargando tus actividades VPL...</p>
@@ -118,50 +132,31 @@ export default function Panel({
                         <p>No tienes entregas en actividades VPL aún.</p>
                         <p>Cuando realices una entrega, podrás enviar tu código para análisis.</p>
                     </div>
-                )}
+                )}*/}
 
                 {/* ActionCards */}
                 <ActionCard
-                    icon={<span role="img" aria-label="libro">📖</span>}
-                    title="Explicar error"
-                    description="Recibe una explicación detallada del error que aparece en tu código."
-                    onClick={() => handleActionCardClick("explicar")}
-                />
-
-                {/* ActionCard para enviar VPL del estudiante */}
-                <ActionCard
-                    icon={<span role="img" aria-label="código">💻</span>}
-                    title="Analizar mi código VPL"
-                    description={selectedVpl 
-                        ? `Enviar código de "${selectedVpl.name}" para análisis con IA`
-                        : "Selecciona una actividad VPL para análisis"
-                    }
+                    icon={<span role="img" aria-label="libro">🧪</span>}
+                    title="Explicar casos de prueba"
+                    description="Recibe una explicación detallada de los casos de prueba que fallan"
                     onClick={() => handleActionCardClick("enviar_vpl_estudiante")}
-                    disabled={!selectedVpl || loading}
                 />
 
-                {/* ActionCard para enviar todos los VPL (admin/profesor) */}
-                <ActionCard
-                    icon={<span role="img" aria-label="datos">📊</span>}
-                    title="Procesar todos los VPL"
-                    description="Enviar datos de todos los VPL para procesamiento masivo (requiere permisos)"
-                    onClick={() => handleActionCardClick("enviar_vpl_admin")}
-                    disabled={loading}
-                />
-
-                {/* Mostrar loading, resultado o error */}
+                {/* Mostrar loading */}
                 {loading && (
                     <div className="status-message loading">
                         <p>⏳ Procesando...</p>
                     </div>
                 )}
 
-                {result && (
+                {/* Mostrar resultado simple (sin feedback) */}
+                {result && typeof result === 'string' && (
                     <div className="status-message success">
                         <p>✅ {result}</p>
                     </div>
                 )}
 
+                {/* Mostrar errores */}
                 {error && (
                     <div className="status-message error">
                         <p>❌ {error}</p>

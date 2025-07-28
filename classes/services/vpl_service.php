@@ -15,7 +15,8 @@ class vpl_service {
     public static function get_vpl_data(int $courseid = null): array {
         global $DB, $CFG;
 
-        // 1.- Consulta SQL (tablas vpl, submissions, evaluations, user, course)
+        // 1.- Consulta SQL (tablas vpl, submissions, user, course)
+        // NOTA: No incluimos vpl_evaluations porque no existe en VPL
         $sql = "
             SELECT
                 v.id              AS vplid,
@@ -28,22 +29,23 @@ class vpl_service {
                 u.firstname,
                 u.lastname,
                 s.datesubmitted,
-
-                e.id              AS evaluationid,
-                e.grade,
-                e.dategraded,
-                e.grader,
-                e.stdout,
-                e.stderr
+                s.grade           AS grade,
+                s.dategraded      AS dategraded,
+                s.grader          AS grader
             FROM {vpl} v
             JOIN {course}          c ON c.id = v.course
             LEFT JOIN {vpl_submissions} s ON s.vpl = v.id
             LEFT JOIN {user}       u ON u.id = s.userid
-            LEFT JOIN {vpl_evaluations} e ON e.submission = s.id
             WHERE (:cid IS NULL OR v.course = :cid)
             ORDER BY v.id, s.datesubmitted DESC
         ";
-        $records = $DB->get_records_sql($sql, ['cid' => $courseid]);
+        
+        try {
+            $records = $DB->get_records_sql($sql, ['cid' => $courseid]);
+        } catch (Exception $e) {
+            error_log("AISTRIX ERROR in get_vpl_data: " . $e->getMessage());
+            return [];
+        }
 
         // 2.- Enriquecer cada registro con el código fuente de la entrega
         $fs = get_file_storage();
@@ -52,25 +54,30 @@ class vpl_service {
                 $rec->filesource = null;
                 continue;
             }
-            // El area de archivos de un VPL se llama 'submission_files'
+            
+            // Intentar primero desde file storage
             $files = $fs->get_area_files(
-                \context_system::instance()->id, // el contexto System funciona, pero si conoces el cmid usa context_module
+                \context_system::instance()->id,
                 'mod_vpl',
                 'submission_files',
                 $rec->submissionid,
                 'itemid, filepath, filename',
-                false /* solo archivos, no directorios */
+                false
             );
 
-            // Si tu actividad permite varios archivos, concaténalos.
             $sources = [];
             foreach ($files as $f) {
-                // Solo texto: si los estudiantes suben binarios, filtra por mimetype.
                 $sources[] = [
                     'filename' => $f->get_filename(),
                     'content'  => $f->get_content()
                 ];
             }
+            
+            // Si no hay archivos en file storage, leer desde moodledata
+            if (empty($sources)) {
+                $sources = self::get_submitted_files_from_moodledata($rec->vplid, $rec->userid, $rec->submissionid);
+            }
+            
             $rec->filesource = $sources;
         }
         return $records;
@@ -97,14 +104,9 @@ class vpl_service {
                         'lastname'  => $r->lastname
                     ],
                     'datesubmitted' => $r->datesubmitted,
-                    'evaluation'    => $r->evaluationid ? [
-                        'id'         => $r->evaluationid,
-                        'grade'      => (float)$r->grade,
-                        'dategraded' => $r->dategraded,
-                        'grader'     => $r->grader,
-                        'stdout'     => $r->stdout,
-                        'stderr'     => $r->stderr
-                    ] : null,
+                    'grade'        => isset($r->grade) ? (float)$r->grade : null,
+                    'dategraded'   => $r->dategraded ?? null,
+                    'grader'       => $r->grader ?? null,
                     'files'        => $r->filesource          // << código fuente
                 ];
             }
@@ -126,6 +128,7 @@ class vpl_service {
         }
 
         // Consulta para obtener la última entrega del estudiante en el VPL específico
+        // NOTA: No incluimos vpl_evaluations porque no existe - los resultados están en archivos
         $sql = "
             SELECT
                 v.id              AS vplid,
@@ -138,30 +141,43 @@ class vpl_service {
                 u.firstname,
                 u.lastname,
                 s.datesubmitted,
-
-                e.id              AS evaluationid,
-                e.grade,
-                e.dategraded,
-                e.grader,
-                e.stdout,
-                e.stderr
+                s.grade           AS grade,
+                s.dategraded      AS dategraded,
+                s.grader          AS grader
             FROM {vpl} v
             JOIN {course}          c ON c.id = v.course
             JOIN {vpl_submissions} s ON s.vpl = v.id
             JOIN {user}            u ON u.id = s.userid
-            LEFT JOIN {vpl_evaluations} e ON e.submission = s.id
             WHERE v.id = :vplid AND s.userid = :userid
             ORDER BY s.datesubmitted DESC
             LIMIT 1
         ";
         
-        $record = $DB->get_record_sql($sql, ['vplid' => $vplid, 'userid' => $userid]);
+        // DEBUG: Log de la consulta y parámetros
+        error_log("AISTRIX DEBUG get_student_vpl_data SQL: " . $sql);
+        error_log("AISTRIX DEBUG get_student_vpl_data PARAMS: " . json_encode(['vplid' => $vplid, 'userid' => $userid]));
+        
+        try {
+            $record = $DB->get_record_sql($sql, ['vplid' => $vplid, 'userid' => $userid]);
+            
+            // DEBUG: Log del resultado
+            error_log("AISTRIX DEBUG get_student_vpl_data RECORD: " . ($record ? 'Found' : 'Not found'));
+            
+        } catch (Exception $e) {
+            error_log("AISTRIX ERROR in get_student_vpl_data: " . $e->getMessage());
+            error_log("AISTRIX ERROR SQL: " . $sql);
+            error_log("AISTRIX ERROR PARAMS: " . json_encode(['vplid' => $vplid, 'userid' => $userid]));
+            return null;
+        }
         
         if (!$record) {
             return null;
         }
 
-        // Obtener archivos de código fuente
+        // Obtener archivos de código fuente - primero intentar desde file storage, luego desde moodledata
+        $sources = [];
+        
+        // Método 1: Intentar desde file storage de Moodle
         $fs = get_file_storage();
         $files = $fs->get_area_files(
             \context_system::instance()->id,
@@ -172,14 +188,22 @@ class vpl_service {
             false
         );
 
-        $sources = [];
         foreach ($files as $f) {
             $sources[] = [
                 'filename' => $f->get_filename(),
                 'content'  => $f->get_content()
             ];
         }
+        
+        // Método 2: Si no hay archivos en file storage, leer desde moodledata
+        if (empty($sources)) {
+            $sources = self::get_submitted_files_from_moodledata($record->vplid, $record->userid, $record->submissionid);
+        }
+        
         $record->filesource = $sources;
+
+        // Obtener resultados de ejecución desde moodledata
+        $record->execution_results = self::get_execution_results($record->vplid, $record->userid, $record->submissionid);
 
         return (array) $record;
     }
@@ -245,12 +269,19 @@ class vpl_service {
         error_log("AISTRIX DEBUG SQL: " . $sql);
         error_log("AISTRIX DEBUG PARAMS: " . json_encode($params));
         
-        $results = $DB->get_records_sql($sql, $params);
-        
-        // DEBUG: Log de resultados
-        error_log("AISTRIX DEBUG RESULTS: " . count($results) . " records found");
-        
-        return $results;
+        try {
+            $results = $DB->get_records_sql($sql, $params);
+            
+            // DEBUG: Log de resultados
+            error_log("AISTRIX DEBUG RESULTS: " . count($results) . " records found");
+            
+            return $results;
+        } catch (Exception $e) {
+            error_log("AISTRIX ERROR in get_student_available_vpls: " . $e->getMessage());
+            error_log("AISTRIX ERROR SQL: " . $sql);
+            error_log("AISTRIX ERROR PARAMS: " . json_encode($params));
+            return [];
+        }
     }
 
     /** Convierte los datos del estudiante en JSON para la IA */
@@ -272,18 +303,123 @@ class vpl_service {
                     'lastname' => $record['lastname']
                 ],
                 'datesubmitted' => $record['datesubmitted'],
-                'evaluation' => $record['evaluationid'] ? [
-                    'id' => $record['evaluationid'],
-                    'grade' => (float)$record['grade'],
-                    'dategraded' => $record['dategraded'],
-                    'grader' => $record['grader'],
-                    'stdout' => $record['stdout'],
-                    'stderr' => $record['stderr']
-                ] : null,
-                'files' => $record['filesource']
+                'grade' => isset($record['grade']) ? (float)$record['grade'] : null,
+                'dategraded' => $record['dategraded'] ?? null,
+                'grader' => $record['grader'] ?? null,
+                'files' => $record['filesource'],
+                'execution_results' => $record['execution_results'] ?? null
             ]
         ];
 
         return json_encode($out, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
+     * Obtiene los resultados de ejecución desde moodledata
+     * @param int $vplid ID del VPL
+     * @param int $userid ID del usuario
+     * @param int $submissionid ID de la entrega
+     * @return array Resultados de ejecución
+     */
+    private static function get_execution_results(int $vplid, int $userid, int $submissionid): array {
+        global $CFG;
+        
+        $results = [
+            'execution_output' => null,
+            'compilation_output' => null,
+            'grade_comments' => null,
+            'stdout' => null,
+            'stderr' => null
+        ];
+        
+        // Ruta base en moodledata: vpl_data/{vplid}/usersdata/{userid}/{submissionid}/
+        $basePath = $CFG->dataroot . '/vpl_data/' . $vplid . '/usersdata/' . $userid . '/' . $submissionid . '/';
+        
+        // Leer execution.txt
+        $executionFile = $basePath . 'execution.txt';
+        if (file_exists($executionFile)) {
+            $results['execution_output'] = file_get_contents($executionFile);
+            
+            // Parsear execution.txt para extraer stdout y stderr si están separados
+            $content = $results['execution_output'];
+            if (strpos($content, '--- Program output ---') !== false) {
+                $parts = explode('--- Program output ---', $content);
+                if (count($parts) > 1) {
+                    $outputPart = $parts[1];
+                    if (strpos($outputPart, '--- Expected output') !== false) {
+                        $outputParts = explode('--- Expected output', $outputPart);
+                        $results['stdout'] = trim($outputParts[0]);
+                    } else {
+                        $results['stdout'] = trim($outputPart);
+                    }
+                }
+            }
+        }
+        
+        // Leer compilation.txt
+        $compilationFile = $basePath . 'compilation.txt';
+        if (file_exists($compilationFile)) {
+            $results['compilation_output'] = file_get_contents($compilationFile);
+        }
+        
+        // Leer grade_comments.txt
+        $gradeFile = $basePath . 'grade_comments.txt';
+        if (file_exists($gradeFile)) {
+            $results['grade_comments'] = file_get_contents($gradeFile);
+        }
+        
+        // DEBUG: Log de archivos encontrados
+        error_log("AISTRIX DEBUG execution files for VPL {$vplid}, user {$userid}, submission {$submissionid}:");
+        error_log("AISTRIX DEBUG - execution.txt: " . (file_exists($executionFile) ? 'found' : 'not found'));
+        error_log("AISTRIX DEBUG - compilation.txt: " . (file_exists($compilationFile) ? 'found' : 'not found'));
+        error_log("AISTRIX DEBUG - grade_comments.txt: " . (file_exists($gradeFile) ? 'found' : 'not found'));
+        
+        return $results;
+    }
+
+    /**
+     * Obtiene los archivos de código fuente desde moodledata
+     * @param int $vplid ID del VPL
+     * @param int $userid ID del usuario
+     * @param int $submissionid ID de la entrega
+     * @return array Array de archivos con filename y content
+     */
+    private static function get_submitted_files_from_moodledata(int $vplid, int $userid, int $submissionid): array {
+        global $CFG;
+        
+        $files = [];
+        
+        // Ruta de submittedfiles: vpl_data/{vplid}/usersdata/{userid}/{submissionid}/submittedfiles/
+        $submittedPath = $CFG->dataroot . '/vpl_data/' . $vplid . '/usersdata/' . $userid . '/' . $submissionid . '/submittedfiles/';
+        
+        // DEBUG: Log de la ruta
+        error_log("AISTRIX DEBUG looking for submitted files in: " . $submittedPath);
+        
+        if (!is_dir($submittedPath)) {
+            error_log("AISTRIX DEBUG submitted files directory not found: " . $submittedPath);
+            return $files;
+        }
+        
+        // Leer todos los archivos en la carpeta submittedfiles
+        $dirHandle = opendir($submittedPath);
+        if ($dirHandle) {
+            while (($filename = readdir($dirHandle)) !== false) {
+                if ($filename != '.' && $filename != '..' && is_file($submittedPath . $filename)) {
+                    $filepath = $submittedPath . $filename;
+                    $content = file_get_contents($filepath);
+                    
+                    if ($content !== false) {
+                        $files[] = [
+                            'filename' => $filename,
+                            'content' => $content
+                        ];
+                        error_log("AISTRIX DEBUG found file: " . $filename . " (" . strlen($content) . " bytes)");
+                    }
+                }
+            }
+            closedir($dirHandle);
+        }
+        
+        return $files;
     }
 }

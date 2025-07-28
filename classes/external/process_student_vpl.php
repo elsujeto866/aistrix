@@ -45,7 +45,7 @@ class process_student_vpl extends \external_api {
         $resp = \local_aistrix\services\webhook_service::send_to_webhook($json, $url);
     
         // 7) Respuesta al caller (React)
-        return [
+        $response = [
             'success' => $resp['success'],
             'message' => $resp['success']
                 ? "Sent student VPL data OK (HTTP {$resp['http_code']})"
@@ -53,6 +53,16 @@ class process_student_vpl extends \external_api {
             'vplname' => $data['vplname'],
             'studentname' => $data['firstname'] . ' ' . $data['lastname']
         ];
+        
+        // 8) Si el webhook fue exitoso, extraer el feedback del JSON de respuesta
+        if ($resp['success'] && !empty($resp['response'])) {
+            $webhookResponse = json_decode($resp['response'], true);
+            if ($webhookResponse && isset($webhookResponse['feedback'])) {
+                $response['feedback'] = $webhookResponse['feedback'];
+            }
+        }
+        
+        return $response;
     }
     
       
@@ -61,7 +71,8 @@ class process_student_vpl extends \external_api {
             'success' => new \external_value(PARAM_BOOL, 'Success status'),  
             'message' => new \external_value(PARAM_TEXT, 'Response message'),
             'vplname' => new \external_value(PARAM_TEXT, 'VPL name', VALUE_OPTIONAL),
-            'studentname' => new \external_value(PARAM_TEXT, 'Student name', VALUE_OPTIONAL)
+            'studentname' => new \external_value(PARAM_TEXT, 'Student name', VALUE_OPTIONAL),
+            'feedback' => new \external_value(PARAM_RAW, 'AI feedback from webhook', VALUE_OPTIONAL)
         ]);  
     }  
 }

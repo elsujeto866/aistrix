@@ -76,9 +76,12 @@
 }
 
 .explanationbox__title {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: $clr-primary;
+  font-size: 2rem;
+  font-weight: bold;
+  background: linear-gradient(90deg, $clr-gradient-start 0%, $clr-gradient-end 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   margin: 0;
   flex: 1;
 }
@@ -110,10 +113,10 @@
 }
 
 .explanationbox__section-title {
-  font-weight: 600;
+  font-weight: bold;
   color: #444;
   margin-bottom: 0.3rem;
-  font-size: 0.98rem;
+  font-size: 1.2rem;
 }
 
 .explanationbox__error-message {
