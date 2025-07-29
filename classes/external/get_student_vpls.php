@@ -1,18 +1,54 @@
-<?php  
+<?php
+/**
+ * Servicio web para obtener VPLs donde el estudiante actual tiene entregas
+ * 
+ * Este archivo define un servicio web que permite al frontend obtener una lista
+ * de actividades VPL (Virtual Programming Lab) donde el estudiante actual ha
+ * realizado al menos una entrega. Se utiliza para poblar el selector de VPLs
+ * en la interfaz de usuario.
+ * 
+ * Flujo de funcionamiento:
+ * 1. Valida parámetros de entrada (courseid opcional)
+ * 2. Verifica que el usuario esté logueado
+ * 3. Consulta VPLs con entregas del estudiante actual
+ * 4. Retorna lista formateada para el frontend
+ * 
+ * @package    local_aistrix
+ * @copyright  2025 EPN
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace local_aistrix\external;  
   
 defined('MOODLE_INTERNAL') || die();  
   
 require_once($CFG->libdir . '/externallib.php');  
-  
+
+/**
+ * Clase de servicio web para obtener VPLs del estudiante
+ * 
+ * Implementa la API externa de Moodle para exponer el servicio
+ * local_aistrix_get_student_vpls como función AJAX.
+ */
 class get_student_vpls extends \external_api {  
       
+    /**
+     * Define los parámetros de entrada del servicio web
+     * 
+     * @return external_function_parameters Estructura de parámetros esperados
+     */
     public static function execute_parameters() {  
         return new \external_function_parameters([  
             'courseid' => new \external_value(PARAM_INT, 'Course ID', VALUE_OPTIONAL)  
         ]);  
     }  
       
+    /**
+     * Ejecuta el servicio para obtener VPLs donde el estudiante tiene entregas
+     * 
+     * @param int|null $courseid ID del curso (opcional, null = todos los cursos)
+     * @return array Estructura con success, vpls array y count
+     */
     public static function execute($courseid = null) {
         global $CFG, $USER;
         
@@ -62,6 +98,11 @@ class get_student_vpls extends \external_api {
     }
     
       
+    /**
+     * Define la estructura de datos de retorno del servicio web
+     * 
+     * @return external_single_structure Estructura de datos de respuesta
+     */
     public static function execute_returns() {  
         return new \external_single_structure([  
             'success' => new \external_value(PARAM_BOOL, 'Success status'),  

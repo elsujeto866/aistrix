@@ -1,16 +1,45 @@
 <?php
+/**
+ * Servicio principal para integración con VPL (Virtual Programming Lab)
+ * 
+ * Esta clase proporciona todas las funcionalidades necesarias para:
+ * - Obtener datos de actividades VPL y entregas de estudiantes
+ * - Extraer archivos de código fuente desde diferentes fuentes
+ * - Obtener resultados de ejecución y compilación
+ * - Generar JSON formateado para envío a servicios de IA
+ * - Verificar permisos y validar entregas
+ * 
+ * La clase actúa como puente entre la base de datos de Moodle,
+ * el sistema de archivos (moodledata) y los servicios externos de IA.
+ * 
+ * @package    local_aistrix
+ * @copyright  2025 EPN
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace local_aistrix\services;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Clase de servicio para operaciones relacionadas con VPL
+ * 
+ * Proporciona métodos estáticos para obtener, procesar y formatear
+ * datos de Virtual Programming Lab para su envío a servicios de IA.
+ */
 class vpl_service {
 
     /**
+     * Obtiene datos completos de VPLs con entregas y archivos de código
+     * 
      * Devuelve un array de objetos stdClass con:
-     *   - datos de la actividad VPL
-     *   - datos de la entrega
-     *   - resultado de la evaluación
-     *   - contenido del/los archivo(s) fuente en texto plano
+     * - Datos de la actividad VPL (id, nombre, curso)
+     * - Datos de la entrega (usuario, fecha, calificación)
+     * - Contenido de archivos fuente en texto plano
+     * - Resultados de ejecución si están disponibles
+     * 
+     * @param int|null $courseid ID del curso (null = todos los cursos)
+     * @return array Array de objetos con datos completos de VPL
      */
     public static function get_vpl_data(int $courseid = null): array {
         global $DB, $CFG;
